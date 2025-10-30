@@ -1,17 +1,22 @@
--- nanabrowser.nvim - TODO list manager for Neovim
--- Note: For browser, we recommend using w3m.vim plugin instead
+-- nanabrowser.nvim - Browser, TODO Manager, and Terminal panels for Neovim
+-- SpaceVim-inspired panel system
 
 local M = {}
 
 M.config = {
-  position = "bottom", -- bottom, right
-  size = 15, -- height/width of panel
+  browser = "w3m",
+  position = "bottom",
+  size = 20,
   border = "rounded",
 }
 
 M.state = {
+  browser_buf = nil,
+  browser_win = nil,
   todo_buf = nil,
   todo_win = nil,
+  terminal_buf = nil,
+  terminal_win = nil,
   todos = {},
 }
 
@@ -20,7 +25,92 @@ function M.setup(opts)
   M.load_todos()
 end
 
--- Load todos from file
+--------------------------------------------------------------------------------
+-- BROWSER
+--------------------------------------------------------------------------------
+
+local function check_browser()
+  if vim.fn.executable(M.config.browser) ~= 1 then
+    vim.notify(
+      string.format("nanabrowser: %s not installed. Install: sudo pacman -S %s", M.config.browser, M.config.browser),
+      vim.log.levels.ERROR
+    )
+    return false
+  end
+  return true
+end
+
+function M.open_browser(url)
+  if not check_browser() then
+    return
+  end
+
+  url = url or "https://duckduckgo.com"
+  if not url:match("^https?://") then
+    url = "https://" .. url
+  end
+
+  -- Close existing panels
+  M.close_todos()
+  M.close_terminal()
+
+  local cmd = string.format("%s '%s'", M.config.browser, url)
+  local split_cmd = string.format("botright %dsplit", M.config.size)
+
+  vim.cmd(split_cmd)
+  vim.cmd("terminal " .. cmd)
+
+  M.state.browser_buf = vim.api.nvim_get_current_buf()
+  M.state.browser_win = vim.api.nvim_get_current_win()
+
+  vim.api.nvim_buf_set_option(M.state.browser_buf, "filetype", "nanabrowser")
+  vim.api.nvim_buf_set_name(M.state.browser_buf, "Browser: " .. url)
+
+  vim.wo.number = false
+  vim.wo.relativenumber = false
+  vim.wo.signcolumn = "no"
+
+  local opts = { buffer = M.state.browser_buf, silent = true }
+  vim.keymap.set("n", "q", function()
+    M.close_browser()
+  end, opts)
+
+  vim.cmd("startinsert")
+end
+
+function M.open_browser_prompt()
+  vim.ui.input({ prompt = "Enter URL: ", default = "https://" }, function(url)
+    if url and url ~= "" then
+      M.open_browser(url)
+    end
+  end)
+end
+
+function M.open_browser_cursor()
+  local url = vim.fn.expand("<cWORD>")
+  url = url:match('["\']([^"\']+)["\']') or url:match('%(([^)]+)%)') or url
+
+  if url and url ~= "" then
+    M.open_browser(url)
+  else
+    vim.notify("No URL under cursor", vim.log.levels.WARN)
+  end
+end
+
+function M.close_browser()
+  if M.state.browser_win and vim.api.nvim_win_is_valid(M.state.browser_win) then
+    if #vim.api.nvim_list_wins() > 1 then
+      vim.api.nvim_win_close(M.state.browser_win, true)
+      M.state.browser_win = nil
+      M.state.browser_buf = nil
+    end
+  end
+end
+
+--------------------------------------------------------------------------------
+-- TODO MANAGER
+--------------------------------------------------------------------------------
+
 function M.load_todos()
   local todo_file = vim.fn.stdpath("data") .. "/nanabrowser_todos.json"
   if vim.fn.filereadable(todo_file) == 1 then
@@ -32,14 +122,12 @@ function M.load_todos()
   end
 end
 
--- Save todos to file
 function M.save_todos()
   local todo_file = vim.fn.stdpath("data") .. "/nanabrowser_todos.json"
   local content = vim.fn.json_encode(M.state.todos)
   vim.fn.writefile({ content }, todo_file)
 end
 
--- Render todo list in buffer
 local function render_todos()
   if not M.state.todo_buf or not vim.api.nvim_buf_is_valid(M.state.todo_buf) then
     return
@@ -69,28 +157,19 @@ local function render_todos()
   vim.api.nvim_buf_set_option(M.state.todo_buf, "modified", false)
 end
 
--- Open TODO list
 function M.open_todos()
-  -- Check if already open
   if M.state.todo_win and vim.api.nvim_win_is_valid(M.state.todo_win) then
     vim.api.nvim_set_current_win(M.state.todo_win)
     return
   end
 
-  -- Determine split command
-  local split_cmd
-  if M.config.position == "bottom" then
-    split_cmd = string.format("botright %dsplit", M.config.size)
-  elseif M.config.position == "right" then
-    split_cmd = string.format("botright %dvsplit", M.config.size)
-  else
-    split_cmd = string.format("botright %dsplit", M.config.size)
-  end
+  -- Close other panels
+  M.close_browser()
+  M.close_terminal()
 
-  -- Create split
+  local split_cmd = string.format("botright %dsplit", M.config.size)
   vim.cmd(split_cmd)
 
-  -- Create or reuse buffer
   if not M.state.todo_buf or not vim.api.nvim_buf_is_valid(M.state.todo_buf) then
     M.state.todo_buf = vim.api.nvim_create_buf(false, true)
   end
@@ -98,14 +177,12 @@ function M.open_todos()
   vim.api.nvim_win_set_buf(0, M.state.todo_buf)
   M.state.todo_win = vim.api.nvim_get_current_win()
 
-  -- Buffer options
   vim.api.nvim_buf_set_option(M.state.todo_buf, "buftype", "nofile")
   vim.api.nvim_buf_set_option(M.state.todo_buf, "bufhidden", "hide")
   vim.api.nvim_buf_set_option(M.state.todo_buf, "swapfile", false)
   vim.api.nvim_buf_set_option(M.state.todo_buf, "filetype", "nanabrowser-todo")
   vim.api.nvim_buf_set_name(M.state.todo_buf, "TODO Manager")
 
-  -- Window options
   vim.wo.number = false
   vim.wo.relativenumber = false
   vim.wo.signcolumn = "no"
@@ -114,10 +191,8 @@ function M.open_todos()
 
   render_todos()
 
-  -- Keymaps
   local opts = { buffer = M.state.todo_buf, silent = true, nowait = true }
 
-  -- Add todo
   vim.keymap.set("n", "a", function()
     vim.ui.input({ prompt = "New TODO: " }, function(text)
       if text and text ~= "" then
@@ -128,19 +203,16 @@ function M.open_todos()
     end)
   end, opts)
 
-  -- Delete todo
   vim.keymap.set("n", "d", function()
     local line = vim.fn.line(".")
-    local idx = line - 5 -- Account for header lines
+    local idx = line - 5
     if idx > 0 and idx <= #M.state.todos then
       table.remove(M.state.todos, idx)
       M.save_todos()
       render_todos()
-      vim.notify("TODO deleted", vim.log.levels.INFO)
     end
   end, opts)
 
-  -- Toggle done
   vim.keymap.set("n", "x", function()
     local line = vim.fn.line(".")
     local idx = line - 5
@@ -151,7 +223,6 @@ function M.open_todos()
     end
   end, opts)
 
-  -- Edit todo
   vim.keymap.set("n", "e", function()
     local line = vim.fn.line(".")
     local idx = line - 5
@@ -166,39 +237,78 @@ function M.open_todos()
     end
   end, opts)
 
-  -- Close (fixed to not close if it's the last window)
   vim.keymap.set("n", "q", function()
     M.close_todos()
   end, opts)
 end
 
--- Close TODO list
 function M.close_todos()
   if M.state.todo_win and vim.api.nvim_win_is_valid(M.state.todo_win) then
-    -- Check if this is the last window
-    local wins = vim.api.nvim_list_wins()
-    local valid_wins = 0
-    for _, win in ipairs(wins) do
-      if vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_get_config(win).relative == "" then
-        valid_wins = valid_wins + 1
-      end
-    end
-
-    if valid_wins > 1 then
+    if #vim.api.nvim_list_wins() > 1 then
       vim.api.nvim_win_close(M.state.todo_win, false)
       M.state.todo_win = nil
-    else
-      vim.notify("Cannot close last window. Open another split first.", vim.log.levels.WARN)
     end
   end
 end
 
--- Toggle TODO list
 function M.toggle_todos()
   if M.state.todo_win and vim.api.nvim_win_is_valid(M.state.todo_win) then
     M.close_todos()
   else
     M.open_todos()
+  end
+end
+
+--------------------------------------------------------------------------------
+-- TERMINAL
+--------------------------------------------------------------------------------
+
+function M.open_terminal()
+  if M.state.terminal_win and vim.api.nvim_win_is_valid(M.state.terminal_win) then
+    vim.api.nvim_set_current_win(M.state.terminal_win)
+    return
+  end
+
+  -- Close other panels
+  M.close_browser()
+  M.close_todos()
+
+  local split_cmd = string.format("botright %dsplit", M.config.size)
+  vim.cmd(split_cmd)
+  vim.cmd("terminal")
+
+  M.state.terminal_buf = vim.api.nvim_get_current_buf()
+  M.state.terminal_win = vim.api.nvim_get_current_win()
+
+  vim.api.nvim_buf_set_name(M.state.terminal_buf, "Terminal")
+
+  vim.wo.number = false
+  vim.wo.relativenumber = false
+  vim.wo.signcolumn = "no"
+
+  local opts = { buffer = M.state.terminal_buf, silent = true }
+  vim.keymap.set("n", "q", function()
+    M.close_terminal()
+  end, opts)
+
+  vim.cmd("startinsert")
+end
+
+function M.close_terminal()
+  if M.state.terminal_win and vim.api.nvim_win_is_valid(M.state.terminal_win) then
+    if #vim.api.nvim_list_wins() > 1 then
+      vim.api.nvim_win_close(M.state.terminal_win, true)
+      M.state.terminal_win = nil
+      M.state.terminal_buf = nil
+    end
+  end
+end
+
+function M.toggle_terminal()
+  if M.state.terminal_win and vim.api.nvim_win_is_valid(M.state.terminal_win) then
+    M.close_terminal()
+  else
+    M.open_terminal()
   end
 end
 

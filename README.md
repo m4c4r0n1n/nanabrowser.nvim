@@ -1,17 +1,17 @@
 # nanabrowser.nvim
 
-**TODO Manager for Neovim** - Simple, persistent task management in a bottom panel.
+**SpaceVim-inspired panel system for Neovim**
 
-> **Note:** This plugin focuses on TODO management. For web browsing in Neovim, we recommend [w3m.vim](https://github.com/yuratomo/w3m.vim) which provides full w3m integration.
+Browser, TODO Manager, and Terminal in clean bottom panels.
 
 ## Features
 
-- ✅ **Persistent TODO list** - Saves to disk automatically
-- 📦 **Bottom panel** - Opens in a dedicated split (SpaceVim-style)
-- ⌨️ **Simple keybindings** - Add, edit, delete, toggle tasks
-- 💾 **Auto-save** - Never lose your TODOs
-- 🎨 **Clean interface** - Checkboxes and strikethrough for completed tasks
-- 📝 **Edit support** - Modify existing TODOs
+- 🌐 **Browser** - w3m in terminal at bottom with URL prompt
+- ✅ **TODO Manager** - Persistent task list
+- 💻 **Terminal** - Quick terminal access
+- 📦 **Bottom panels** - SpaceVim-style interface
+- ⌨️ **Keyboard-driven** - No mouse needed
+- 🎨 **Clean UI** - Rounded borders, no clutter
 
 ## Installation
 
@@ -24,110 +24,119 @@
   lazy = false,
   config = function()
     require("nanabrowser").setup({
-      position = "bottom", -- bottom or right
-      size = 15, -- height/width of panel
+      browser = "w3m",       -- w3m, lynx, links
+      position = "bottom",   -- bottom or right
+      size = 20,             -- height/width of panel
       border = "rounded",
     })
   end,
   keys = {
-    { "<leader>td", "<cmd>NanaTodosToggle<cr>", desc = "Toggle TODO Manager" },
-  },
-}
-```
-
-### With w3m.vim for browsing
-
-```lua
--- TODO Manager
-{
-  "nanabrowser.nvim",
-  dir = "~/projects/nanabrowser.nvim",
-  lazy = false,
-  config = function()
-    require("nanabrowser").setup()
-  end,
-  keys = {
-    { "<leader>td", "<cmd>NanaTodosToggle<cr>", desc = "Toggle TODO Manager" },
-  },
-},
-
--- Web Browser (w3m.vim)
-{
-  "yuratomo/w3m.vim",
-  cmd = { "W3m", "W3mTab" },
-  keys = {
-    { "<leader>wb", "<cmd>W3m<cr>", desc = "Open w3m browser" },
-    { "gx", "<cmd>W3mTab <cWORD><cr>", desc = "Open URL in w3m" },
+    -- Browser
+    { "<leader>wb", "<cmd>NanaBrowserPrompt<cr>", desc = "Open browser" },
+    { "gx", "<cmd>NanaBrowserCursor<cr>", desc = "Open URL" },
+    -- TODO
+    { "<leader>td", "<cmd>NanaTodosToggle<cr>", desc = "Toggle TODO" },
+    -- Terminal
+    { "<leader>tt", "<cmd>NanaTerminalToggle<cr>", desc = "Toggle terminal" },
   },
 }
 ```
 
 ## Usage
 
-### Commands
+### Browser
 
-| Command | Description |
-|---------|-------------|
-| `:NanaTodos` | Open TODO Manager |
-| `:NanaTodosToggle` | Toggle TODO Manager |
-| `:NanaTodosClose` | Close TODO Manager |
+**Commands:**
+- `:NanaBrowserPrompt` - Enter URL to browse
+- `:NanaBrowserCursor` - Open URL under cursor
 
-### Keybindings
+**Keybindings:**
+- `<leader>wb` - Prompt for URL, opens browser at bottom
+- `gx` - Open URL under cursor
 
-**Global:**
-- `<leader>td` - Toggle TODO Manager
+**In browser:**
+- Arrow keys / vim keys to navigate
+- Enter to follow links
+- `<Esc>` then `q` to close
 
-**In TODO Manager:**
+### TODO Manager
+
+**Commands:**
+- `:NanaTodos` - Open TODO manager
+- `:NanaTodosToggle` - Toggle TODO manager
+
+**Keybindings:**
+- `<leader>td` - Toggle TODO panel
+
+**In TODO panel:**
 - `a` - Add new TODO
-- `e` - Edit TODO under cursor
-- `d` - Delete TODO under cursor
+- `e` - Edit TODO
 - `x` - Toggle done/undone
-- `q` - Close TODO Manager
+- `d` - Delete TODO
+- `q` - Close panel
+
+### Terminal
+
+**Commands:**
+- `:NanaTerminal` - Open terminal
+- `:NanaTerminalToggle` - Toggle terminal
+
+**Keybindings:**
+- `<leader>tt` - Toggle terminal panel
+
+**In terminal:**
+- Type commands as normal
+- `<Esc>` then `q` to close
 
 ## Quick Start
 
-1. **Open TODO Manager:**
-   ```vim
-   :NanaTodos
-   ```
-   Or press `<leader>td`
+**Browse the web:**
+```vim
+<leader>wb
+```
+Enter a URL and press Enter
 
-2. **Add a task:** Press `a`
+**Manage TODOs:**
+```vim
+<leader>td
+```
+Press `a` to add a task
 
-3. **Mark as done:** Move cursor to task, press `x`
+**Open terminal:**
+```vim
+<leader>tt
+```
 
-4. **Edit a task:** Move cursor to task, press `e`
+## Panel Behavior
 
-5. **Delete a task:** Move cursor to task, press `d`
-
-6. **Close:** Press `q`
+- **Only one panel open at a time** - Opening a new panel closes the current one
+- **Bottom position** - All panels open at the bottom (configurable)
+- **Persistent** - TODOs save automatically
+- **Clean close** - Press `q` in normal mode to close any panel
 
 ## Configuration
 
 ```lua
 require("nanabrowser").setup({
-  position = "bottom", -- "bottom" or "right"
-  size = 15,           -- Height (if bottom) or width (if right)
-  border = "rounded",  -- Border style
+  browser = "w3m",       -- Terminal browser to use
+  position = "bottom",   -- "bottom" or "right"
+  size = 20,             -- Height (bottom) or width (right)
+  border = "rounded",    -- Border style
 })
 ```
 
-## Data Storage
+## Dependencies
 
-TODOs are saved to: `~/.local/share/nvim/nanabrowser_todos.json`
+- **w3m** (for browser): `sudo pacman -S w3m`
+- Or use lynx/links: `sudo pacman -S lynx` or `links`
 
 ## Why nanabrowser?
 
-- **Lightweight** - Pure Lua, no external dependencies
-- **Persistent** - TODOs survive Neovim restarts
-- **Focused** - Does one thing well
-- **Clean UI** - Inspired by SpaceVim's panel system
-- **Keyboard-driven** - No mouse needed
-
-## Recommended Companion Plugins
-
-- **[w3m.vim](https://github.com/yuratomo/w3m.vim)** - Full-featured w3m browser integration
-- **[toggleterm.nvim](https://github.com/akinsho/toggleterm.nvim)** - Enhanced terminal management
+- **All-in-one** - Browser, TODOs, terminal in one plugin
+- **SpaceVim-inspired** - Clean panel system
+- **Lightweight** - Pure Lua, minimal dependencies
+- **Keyboard-first** - Vim-style navigation
+- **Focused** - One panel at a time, no distractions
 
 ## License
 
