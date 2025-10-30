@@ -1,39 +1,17 @@
 # nanabrowser.nvim
 
-**A real terminal web browser + TODO list for Neovim!**
+**TODO Manager for Neovim** - Simple, persistent task management in a bottom panel.
 
-Browse the web and manage tasks without leaving your editor.
+> **Note:** This plugin focuses on TODO management. For web browsing in Neovim, we recommend [w3m.vim](https://github.com/yuratomo/w3m.vim) which provides full w3m integration.
 
 ## Features
 
-### Browser
-- 🌐 **Real interactive terminal browser** (w3m/lynx/links)
-- 📦 **Opens at bottom** of screen (configurable position)
-- ⌨️ **Full keyboard navigation** - type, click, scroll
-- 🔗 **Open URLs** from cursor or prompt
-- 🎨 **Clean interface** with rounded borders
-
-### TODO List
-- ✅ **Persistent TODO list** saved to disk
-- ➕ Add/delete/toggle tasks
-- 📝 Simple keyboard shortcuts
-- 💾 Auto-saves
-
-## Dependencies
-
-Choose your browser:
-- `w3m` - Recommended, best compatibility
-- `lynx` - Classic, very stable
-- `links` - Modern alternative
-
-Install on Arch Linux:
-```bash
-sudo pacman -S w3m
-# or
-sudo pacman -S lynx
-# or
-sudo pacman -S links
-```
+- ✅ **Persistent TODO list** - Saves to disk automatically
+- 📦 **Bottom panel** - Opens in a dedicated split (SpaceVim-style)
+- ⌨️ **Simple keybindings** - Add, edit, delete, toggle tasks
+- 💾 **Auto-save** - Never lose your TODOs
+- 🎨 **Clean interface** - Checkboxes and strikethrough for completed tasks
+- 📝 **Edit support** - Modify existing TODOs
 
 ## Installation
 
@@ -46,105 +24,110 @@ sudo pacman -S links
   lazy = false,
   config = function()
     require("nanabrowser").setup({
-      browser = "w3m", -- w3m, lynx, links
-      position = "bottom", -- bottom, right, float
-      size = 20, -- height/width of window
+      position = "bottom", -- bottom or right
+      size = 15, -- height/width of panel
       border = "rounded",
     })
   end,
   keys = {
-    -- Browser
-    { "<leader>wb", "<cmd>NanaBrowserPrompt<cr>", desc = "Open browser" },
-    { "<leader>wc", "<cmd>NanaBrowserCursor<cr>", desc = "Browse URL under cursor" },
-    { "<leader>wt", "<cmd>NanaBrowserToggle<cr>", desc = "Toggle browser" },
-    { "gx", "<cmd>NanaBrowserCursor<cr>", desc = "Open URL", mode = { "n", "v" } },
-    -- TODO List
-    { "<leader>td", "<cmd>NanaTodosToggle<cr>", desc = "Toggle TODO list" },
+    { "<leader>td", "<cmd>NanaTodosToggle<cr>", desc = "Toggle TODO Manager" },
+  },
+}
+```
+
+### With w3m.vim for browsing
+
+```lua
+-- TODO Manager
+{
+  "nanabrowser.nvim",
+  dir = "~/projects/nanabrowser.nvim",
+  lazy = false,
+  config = function()
+    require("nanabrowser").setup()
+  end,
+  keys = {
+    { "<leader>td", "<cmd>NanaTodosToggle<cr>", desc = "Toggle TODO Manager" },
+  },
+},
+
+-- Web Browser (w3m.vim)
+{
+  "yuratomo/w3m.vim",
+  cmd = { "W3m", "W3mTab" },
+  keys = {
+    { "<leader>wb", "<cmd>W3m<cr>", desc = "Open w3m browser" },
+    { "gx", "<cmd>W3mTab <cWORD><cr>", desc = "Open URL in w3m" },
   },
 }
 ```
 
 ## Usage
 
-### Browser Commands
+### Commands
 
 | Command | Description |
 |---------|-------------|
-| `:NanaBrowser <url>` | Open URL in browser |
-| `:NanaBrowserPrompt` | Prompt for URL |
-| `:NanaBrowserCursor` | Open URL under cursor |
-| `:NanaBrowserToggle` | Toggle browser window |
-| `:NanaBrowserClose` | Close browser |
+| `:NanaTodos` | Open TODO Manager |
+| `:NanaTodosToggle` | Toggle TODO Manager |
+| `:NanaTodosClose` | Close TODO Manager |
 
-### Browser Keybindings
+### Keybindings
 
-| Key | Action |
-|-----|--------|
-| `<leader>wb` | Prompt for URL |
-| `<leader>wc` | Open URL under cursor |
-| `<leader>wt` | Toggle browser |
-| `gx` | Open URL (replaces default) |
-| `q` (in browser, normal mode) | Close browser |
-| `<Esc>` | Exit insert mode in browser |
+**Global:**
+- `<leader>td` - Toggle TODO Manager
 
-### TODO List
+**In TODO Manager:**
+- `a` - Add new TODO
+- `e` - Edit TODO under cursor
+- `d` - Delete TODO under cursor
+- `x` - Toggle done/undone
+- `q` - Close TODO Manager
 
-| Command | Description |
-|---------|-------------|
-| `:NanaTodos` | Open TODO list |
-| `:NanaTodosToggle` | Toggle TODO list |
+## Quick Start
 
-**TODO Keybindings (in TODO buffer):**
-| Key | Action |
-|-----|--------|
-| `<leader>td` | Toggle TODO list |
-| `a` | Add new TODO |
-| `d` | Delete TODO under cursor |
-| `x` | Toggle done/undone |
-| `q` | Close TODO list |
+1. **Open TODO Manager:**
+   ```vim
+   :NanaTodos
+   ```
+   Or press `<leader>td`
 
-## Examples
+2. **Add a task:** Press `a`
 
-**Open a webpage:**
-```vim
-:NanaBrowser https://github.com
+3. **Mark as done:** Move cursor to task, press `x`
+
+4. **Edit a task:** Move cursor to task, press `e`
+
+5. **Delete a task:** Move cursor to task, press `d`
+
+6. **Close:** Press `q`
+
+## Configuration
+
+```lua
+require("nanabrowser").setup({
+  position = "bottom", -- "bottom" or "right"
+  size = 15,           -- Height (if bottom) or width (if right)
+  border = "rounded",  -- Border style
+})
 ```
 
-**Quick browse:**
-1. Put cursor on any URL in text
-2. Press `gx`
-3. Browser opens at bottom with that page
-4. Press `<Esc>` then `q` to close
+## Data Storage
 
-**Manage TODOs:**
-1. Press `<leader>td`
-2. Press `a` to add a task
-3. Press `x` to mark as done
-4. Press `d` to delete
-5. Press `q` to close
-
-**Interactive browsing:**
-- Browser opens in **terminal mode** (you can type!)
-- Use arrow keys or vim keys to navigate
-- Press Enter to follow links
-- Press `<Esc>` to exit terminal mode
-- Press `q` to close browser
-
-## Tips
-
-- **Google/Facebook alternatives:** Use DuckDuckGo (works better in w3m)
-- **Terminal navigation:** Learn w3m/lynx keybindings for best experience
-- **Split position:** Change `position = "right"` for vertical split
-- **Window size:** Adjust `size = 30` for larger browser window
+TODOs are saved to: `~/.local/share/nvim/nanabrowser_todos.json`
 
 ## Why nanabrowser?
 
-- **Stay focused** - No context switching
-- **Lightweight** - Terminal browsers use minimal resources
+- **Lightweight** - Pure Lua, no external dependencies
+- **Persistent** - TODOs survive Neovim restarts
+- **Focused** - Does one thing well
+- **Clean UI** - Inspired by SpaceVim's panel system
 - **Keyboard-driven** - No mouse needed
-- **Distraction-free** - No ads, no animations
-- **Productivity** - Integrated TODO list
-- **Privacy** - Text-only browsing
+
+## Recommended Companion Plugins
+
+- **[w3m.vim](https://github.com/yuratomo/w3m.vim)** - Full-featured w3m browser integration
+- **[toggleterm.nvim](https://github.com/akinsho/toggleterm.nvim)** - Enhanced terminal management
 
 ## License
 
