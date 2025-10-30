@@ -1,21 +1,20 @@
 # nanabrowser.nvim
 
-**SpaceVim-inspired panel system for Neovim**
+**SpaceVim-inspired tabbed panel system for Neovim**
 
-Browser, TODO Manager, and Terminal in clean bottom panels.
+One persistent bottom panel with tabs for Browser, TODO Manager, and Terminal.
 
 ## Features
 
-- 🌐 **Browser** - w3m in terminal at bottom with URL prompt
-- ✅ **TODO Manager** - Persistent task list
-- 💻 **Terminal** - Quick terminal access
-- 📦 **Bottom panels** - SpaceVim-style interface
-- ⌨️ **Keyboard-driven** - No mouse needed
-- 🎨 **Clean UI** - Rounded borders, no clutter
+- 📦 **Tabbed bottom panel** - Like SpaceVim screenshot!
+- 🌐 **Browser tab** - w3m for web browsing
+- ✅ **TODO tab** - Persistent task management
+- 💻 **Terminal tab** - Quick shell access
+- 🔢 **Press 1/2/3** - Switch between tabs instantly
+- ⌨️ **Keyboard-first** - No mouse needed
+- 🎨 **Contained & boxed** - Clean, organized interface
 
 ## Installation
-
-### lazy.nvim
 
 ```lua
 {
@@ -24,119 +23,115 @@ Browser, TODO Manager, and Terminal in clean bottom panels.
   lazy = false,
   config = function()
     require("nanabrowser").setup({
-      browser = "w3m",       -- w3m, lynx, links
-      position = "bottom",   -- bottom or right
-      size = 20,             -- height/width of panel
-      border = "rounded",
+      browser = "w3m",  -- or lynx, links
+      size = 20,        -- panel height
     })
   end,
   keys = {
-    -- Browser
-    { "<leader>wb", "<cmd>NanaBrowserPrompt<cr>", desc = "Open browser" },
-    { "gx", "<cmd>NanaBrowserCursor<cr>", desc = "Open URL" },
-    -- TODO
-    { "<leader>td", "<cmd>NanaTodosToggle<cr>", desc = "Toggle TODO" },
-    -- Terminal
-    { "<leader>tt", "<cmd>NanaTerminalToggle<cr>", desc = "Toggle terminal" },
+    { "<leader>p", function() require("nanabrowser").toggle_panel() end, desc = "Toggle panel" },
+    { "<leader>wb", function() require("nanabrowser").open_browser_prompt() end, desc = "Browse URL" },
+    { "gx", function() require("nanabrowser").open_browser_cursor() end, desc = "Open URL" },
+    { "<leader>td", function() require("nanabrowser").open_panel("todo") end, desc = "Open TODO" },
+    { "<leader>tt", function() require("nanabrowser").open_terminal() end, desc = "Open terminal" },
   },
 }
 ```
 
 ## Usage
 
-### Browser
-
-**Commands:**
-- `:NanaBrowserPrompt` - Enter URL to browse
-- `:NanaBrowserCursor` - Open URL under cursor
+### Panel Control
 
 **Keybindings:**
-- `<leader>wb` - Prompt for URL, opens browser at bottom
-- `gx` - Open URL under cursor
+- `<leader>p` - Toggle panel open/close
+- `1` - Switch to Browser tab
+- `2` - Switch to TODO tab
+- `3` - Switch to Terminal tab
+- `q` - Close panel
 
-**In browser:**
-- Arrow keys / vim keys to navigate
-- Enter to follow links
-- `<Esc>` then `q` to close
+### Browser
+
+**Launch:**
+- `<leader>wb` - Prompt for URL, opens in Browser tab
+- `gx` (on URL) - Opens URL in Browser tab
+
+**Navigation:**
+- Arrow keys / vim keys - Navigate page
+- Enter - Follow links
+- `<Esc>` then `q` - Back to tab view
 
 ### TODO Manager
 
-**Commands:**
-- `:NanaTodos` - Open TODO manager
-- `:NanaTodosToggle` - Toggle TODO manager
+**Launch:**
+- `<leader>td` - Opens panel on TODO tab
+- Or press `<leader>p` then `2`
 
-**Keybindings:**
-- `<leader>td` - Toggle TODO panel
-
-**In TODO panel:**
+**Actions:**
 - `a` - Add new TODO
-- `e` - Edit TODO
+- `e` - Edit TODO under cursor
 - `x` - Toggle done/undone
 - `d` - Delete TODO
-- `q` - Close panel
 
 ### Terminal
 
-**Commands:**
-- `:NanaTerminal` - Open terminal
-- `:NanaTerminalToggle` - Toggle terminal
+**Launch:**
+- `<leader>tt` - Opens panel with terminal
+- Or press `<leader>p` then `3`
 
-**Keybindings:**
-- `<leader>tt` - Toggle terminal panel
+**Usage:**
+- Type shell commands as normal
+- `<Esc>` then `q` - Back to tab view
 
-**In terminal:**
-- Type commands as normal
-- `<Esc>` then `q` to close
+## How It Works
+
+1. **One persistent panel** at the bottom
+2. **Three tabs**: Browser │ TODO │ Terminal
+3. **Tab bar** shows which is active: `[1] Browser  2 TODO  3 Terminal`
+4. **Launch actions** (`<leader>wb`, etc.) automatically open the panel on that tab
+5. **Switch tabs** with `1`/`2`/`3` keys
+6. **Clean & contained** - Everything in one boxed area
 
 ## Quick Start
 
-**Browse the web:**
 ```vim
-<leader>wb
+" Open panel
+<leader>p
+
+" Switch to TODO tab
+2
+
+" Add a task
+a
+
+" Switch to Browser
+1
+
+" Close panel
+q
 ```
-Enter a URL and press Enter
-
-**Manage TODOs:**
-```vim
-<leader>td
-```
-Press `a` to add a task
-
-**Open terminal:**
-```vim
-<leader>tt
-```
-
-## Panel Behavior
-
-- **Only one panel open at a time** - Opening a new panel closes the current one
-- **Bottom position** - All panels open at the bottom (configurable)
-- **Persistent** - TODOs save automatically
-- **Clean close** - Press `q` in normal mode to close any panel
 
 ## Configuration
 
 ```lua
 require("nanabrowser").setup({
-  browser = "w3m",       -- Terminal browser to use
-  position = "bottom",   -- "bottom" or "right"
-  size = 20,             -- Height (bottom) or width (right)
-  border = "rounded",    -- Border style
+  browser = "w3m",  -- Terminal browser (w3m, lynx, links)
+  size = 20,        -- Panel height in lines
+  border = "rounded",
 })
 ```
 
 ## Dependencies
 
-- **w3m** (for browser): `sudo pacman -S w3m`
-- Or use lynx/links: `sudo pacman -S lynx` or `links`
+- **w3m**: `sudo pacman -S w3m`
+- Or **lynx**: `sudo pacman -S lynx`
+- Or **links**: `sudo pacman -S links`
 
 ## Why nanabrowser?
 
-- **All-in-one** - Browser, TODOs, terminal in one plugin
-- **SpaceVim-inspired** - Clean panel system
-- **Lightweight** - Pure Lua, minimal dependencies
-- **Keyboard-first** - Vim-style navigation
-- **Focused** - One panel at a time, no distractions
+- **SpaceVim-style** - Exact tabbed panel UI from the screenshot
+- **Contained** - Everything in one persistent bottom box
+- **Organized** - No overlapping windows, clean tabs
+- **Fast switching** - Press 1/2/3 to jump between features
+- **Lightweight** - Pure Lua, simple dependencies
 
 ## License
 
