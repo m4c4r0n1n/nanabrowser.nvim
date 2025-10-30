@@ -1,23 +1,25 @@
 # nanabrowser.nvim
 
-A Neovim plugin to browse webpages as ASCII/Markdown directly in your editor.
+A full-featured ASCII web browser for Neovim! Browse the web without leaving your editor.
 
 ## Features
 
-- 🌐 Fetch and convert webpages to readable text
-- 📝 Outputs as Markdown (with pandoc)
-- ⚡ Fast and lightweight
-- 🎨 Syntax highlighting in markdown format
-- 🔗 Open URLs from cursor position
+- 🌐 Full webpage rendering in ASCII
+- 🖼️ Images converted to ASCII art (via chafa)
+- 🔗 **Clickable links** - Press Enter on numbered links
+- ⬅️ **Browser navigation** - Back/forward with Ctrl-o/Ctrl-i
+- ⚡ Fast and lightweight (powered by w3m)
+- 📜 Browse history
+- 🔄 Refresh pages
 
 ## Dependencies
 
-- `curl` - for fetching webpages
-- `pandoc` - for HTML to Markdown conversion
+- `w3m` - Terminal web browser (for rendering HTML)
+- `chafa` - Image-to-ASCII converter (optional, for images)
 
 Install on Arch Linux:
 ```bash
-sudo pacman -S curl pandoc
+sudo pacman -S w3m chafa
 ```
 
 ## Installation
@@ -50,26 +52,37 @@ sudo pacman -S curl pandoc
 - `:NanaBrowserPrompt` - Prompt for URL to open
 - `:NanaBrowserCursor` - Open URL under cursor
 
+### Navigation (in browser buffer)
+
+- `<Enter>` - Follow numbered link
+- `<C-o>` - Go back in history
+- `<C-i>` - Go forward in history
+- `r` - Refresh current page
+- `<leader>wb` - Open new URL
+
 ### Examples
 
 ```vim
-:NanaBrowser https://github.com
+:NanaBrowser https://example.com
 :NanaBrowserPrompt
 ```
 
-Or use the keybindings:
-- `<leader>wb` - Prompt for URL
-- `<leader>wc` - Open URL under cursor
+**Interactive browsing:**
+1. Open a page: `:NanaBrowser https://github.com`
+2. Scroll down to the links section
+3. Put cursor on `[1] https://...`
+4. Press `<Enter>` to follow the link
+5. Use `<C-o>` to go back
 
 ## Configuration
 
 ```lua
 require("nanabrowser").setup({
-  converter = "pandoc",           -- HTML converter (currently only pandoc)
-  output_format = "markdown",     -- Output format: "markdown" or "plain"
+  width = 120,                    -- Terminal width for rendering
+  show_images = true,             -- Convert images to ASCII art
+  image_width = 80,               -- Width for ASCII images
   user_agent = "Mozilla/5.0...",  -- Custom user agent
-  timeout = 30,                   -- Curl timeout in seconds
-  default_width = 80,             -- Text width for wrapping
+  timeout = 30,                   -- Request timeout in seconds
 })
 ```
 
