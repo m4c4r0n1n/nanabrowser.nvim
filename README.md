@@ -5,8 +5,8 @@
 Browser │ Terminal │ TODO - All visible at once!
 
 ```
-┌─────────────────────────────────────────────────────┐
-│              Main Editor Area                       │
+┌────────────────────────────────────────────────────┐
+│              Main Editor Area                      │
 ├──────────────┬──────────────┬──────────────────────┤
 │   Browser    │   Terminal   │       TODO           │
 │   (w3m)      │   (shell)    │   (task list)        │
