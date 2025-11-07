@@ -105,11 +105,13 @@ Then type shell commands as normal
 
 ```lua
 require("nanabrowser").setup({
-  browser = "w3m",       -- or lynx, links
+  browser = "w3m",       -- or lynx, browsh, links
   height = 20,           -- Panel area height (lines)
   browser_width = 40,    -- Browser width (%)
   terminal_width = 30,   -- Terminal width (%)
   todo_width = 30,       -- TODO width (%)
+  borders = true,        -- Enable Telescope-style borders
+  border_style = "rounded", -- Options: "rounded", "solid", "double", "none"
 })
 ```
 
