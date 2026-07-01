@@ -1,3 +1,6 @@
+## UPDATES!!
+I've tried to update this a bit, if you use it with a different config other than Nananvim and it doesn't work, let me know what's going on and I will make adjustments to make it as cohesive as I can. 
+
 # nanabrowser.nvim
 
 **Side-by-side panels at the bottom of your screen**
