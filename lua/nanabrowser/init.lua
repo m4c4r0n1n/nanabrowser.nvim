@@ -37,6 +37,7 @@ M.state = {
   container = nil, -- float win, or the first split win
   active = nil, -- which panel is focused (float mode)
   last_url = nil,
+  history = {}, -- visited URLs this session (newest last) — feeds :NanaBrowser completion
   todos = {},
 }
 
@@ -197,7 +198,7 @@ ensure_float = function()
   else
     M.state.container = vim.api.nvim_open_win(buf, true, cfg)
   end
-  M.state.win = { browser = nil, terminal = nil, todo = nil }
+  M.state.win = {}
   M.state.win[M.state.active] = M.state.container
   vim.wo[M.state.container].winhl = "Normal:NanaPanelNormal,FloatBorder:NanaPanelBorder"
 end
@@ -464,9 +465,40 @@ local function render_reader(win, tb, url)
   apply_border(win, "🌐 Reader")
 end
 
+-- Command-line completion for :NanaBrowser — recent URLs, then home.
+function M.complete_url(arglead)
+  local seen, out = {}, {}
+  local function add(u)
+    if u and u ~= "" and not seen[u] then
+      seen[u] = true
+      out[#out + 1] = u
+    end
+  end
+  for i = #M.state.history, 1, -1 do
+    add(M.state.history[i])
+  end
+  add(M.config.home)
+  if arglead and arglead ~= "" then
+    local hit = {}
+    for _, u in ipairs(out) do
+      if u:find(arglead, 1, true) then
+        hit[#hit + 1] = u
+      end
+    end
+    return hit
+  end
+  return out
+end
+
 function M.open_browser(url)
   url = normalize_url(url)
   M.state.last_url = url
+  if M.state.history[#M.state.history] ~= url then
+    M.state.history[#M.state.history + 1] = url
+    if #M.state.history > 50 then
+      table.remove(M.state.history, 1)
+    end
+  end
   local tb = detect_text_browser()
   if not tb then
     vim.notify(
@@ -714,10 +746,48 @@ function M.open_panels()
     elseif n == "todo" then
       render_todo()
       todo_keymaps(M.state.buf.todo)
+    elseif PANELS[n] and PANELS[n].render then
+      PANELS[n].render(M.state.buf[n], n)
     end
   end
   M.state.active = M.config.default_panels[1]
   show_layout()
+end
+
+-- ── Extension API ───────────────────────────────────────────────────────────
+-- Register a custom panel (file tree, DB client, notes, …) without touching the
+-- core. spec = { title = string, render = function(buf, name) end }. After this,
+-- add `name` to default_panels (or call open_panel) and it joins the workspace,
+-- the auto/split/float layouts, zoom cycling and :Nana* commands automatically.
+function M.register_panel(name, spec)
+  assert(type(name) == "string" and name ~= "", "register_panel: name required")
+  spec = spec or {}
+  PANELS[name] = { title = spec.title or name, render = spec.render }
+  if not vim.tbl_contains(ORDER, name) then
+    ORDER[#ORDER + 1] = name
+  end
+  M.state.open[name] = M.state.open[name] or false
+end
+
+-- Names of all known panels (built-in + registered), in workspace order.
+function M.panel_names()
+  return vim.deepcopy(ORDER)
+end
+
+-- Open a single panel by name (built-in or registered) and focus it.
+function M.open_panel(name)
+  if not PANELS[name] then
+    vim.notify("nanabrowser: unknown panel '" .. tostring(name) .. "'", vim.log.levels.WARN)
+    return
+  end
+  M.state.open[name] = true
+  M.state.active = name
+  ensure_buf(name)
+  if PANELS[name].render then
+    PANELS[name].render(M.state.buf[name], name)
+  end
+  show_layout()
+  focus_panel(name)
 end
 
 function M.close_all_panels()

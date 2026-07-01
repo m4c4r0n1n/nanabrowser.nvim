@@ -104,23 +104,57 @@ Then type shell commands as normal
 " Navigate to TODO panel, press 'a'
 ```
 
+## Commands
+
+Every action is also a plain user command, so it scripts and `<Tab>`-completes:
+
+| Command | Does |
+| --- | --- |
+| `:NanaPanels` | Toggle the whole panel workspace (same as `<leader>p`) |
+| `:NanaZoom` | Toggle focus-one ↔ show-all zoom |
+| `:NanaPanel {name}` | Open one panel by name (Tab-completes: browser, terminal, todo, …) |
+| `:NanaBrowser [url]` | Open the text browser; `<Tab>` completes recent URLs |
+| `:NanaBrowserPrompt` / `:NanaBrowserCursor` | Prompt for a URL / open the one under the cursor |
+| `:NanaTerminal` / `:NanaTerminalToggle` | Open / toggle the terminal panel |
+| `:NanaTodos` / `:NanaTodosToggle` | Open / toggle the TODO panel |
+
+## Extending — custom panels
+
+The workspace is not limited to the three built-ins. Register your own panel and
+it joins the auto/split/float layouts, zoom cycling, and `:NanaPanel` completion
+automatically — no core edits:
+
+```lua
+local nana = require("nanabrowser")
+
+nana.register_panel("notes", {
+  title = "🗒 Notes",
+  render = function(buf, name)
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "scratch notes…" })
+  end,
+})
+
+-- open it on demand …
+vim.keymap.set("n", "<leader>pn", function() nana.open_panel("notes") end)
+-- … or add it to the default workspace:
+nana.setup({ default_panels = { "browser", "terminal", "todo", "notes" } })
+```
+
 ## Configuration
 
 ```lua
 require("nanabrowser").setup({
-  browser = "w3m",       -- or lynx, browsh, links
-  height = 20,           -- Panel area height (lines)
-  browser_width = 40,    -- Browser width (%)
-  terminal_width = 30,   -- Terminal width (%)
-  todo_width = 30,       -- TODO width (%)
-  borders = true,        -- Enable Telescope-style borders
-  border_style = "rounded", -- Options: "rounded", "solid", "double", "none"
+  text_browser = nil,        -- nil = auto (w3m > lynx > elinks); or force one
+  external_browser = nil,    -- nil = auto ($BROWSER > xdg-open > brave/chromium/firefox)
+  layout = "auto",           -- "auto" (side-by-side if wide enough, else tabbed) | "float" | "split"
+  auto_min_width = 40,       -- min columns per panel before "auto" drops to a float
+  reader_mode = false,       -- true = static -dump render (great for docs)
+  float = { width = 0.85, height = 0.85, border = "rounded" },
+  split = { position = "botright", size = 0.35 }, -- size = fraction of screen height
+  default_panels = { "browser", "terminal", "todo" },
+  home = "https://duckduckgo.com/html",
 })
 ```
-
-**Adjust widths** to your preference:
-- All 3 should add up to 100%
-- Example: `50, 30, 20` = Browser takes half screen
 
 ## Dependencies
 
