@@ -17,7 +17,10 @@ M.config = {
   -- nil = auto-detect. Set explicitly to force a choice.
   text_browser = nil, -- auto: w3m > lynx > elinks
   external_browser = nil, -- auto: $BROWSER > xdg-open > brave/chromium/firefox
-  layout = "float", -- "float" | "split"
+  layout = "auto", -- "auto" | "float" | "split"
+  -- "auto": show every open panel side-by-side (split) when the editor is at
+  -- least (#panels * auto_min_width) columns wide, otherwise a tabbed float.
+  auto_min_width = 40, -- min columns per panel before "auto" falls back to float
   reader_mode = false, -- true = static -dump render (great for docs), false = interactive
   float = { width = 0.85, height = 0.85, border = "rounded" },
   split = { position = "botright", size = 0.35 }, -- size = fraction of screen height
@@ -134,7 +137,7 @@ apply_border = function(win, title)
   vim.wo[win].signcolumn = "no"
   vim.wo[win].cursorline = false
   vim.wo[win].winhl = "Normal:NanaPanelNormal,NormalNC:NanaPanelNC"
-  if M.config.layout == "split" and title then
+  if M.state.effective_layout == "split" and title then
     vim.wo[win].winbar = "%#NanaPanelBorder# " .. title .. " "
   end
 end
@@ -248,11 +251,29 @@ ensure_split = function()
   end
 end
 
+-- Resolve the effective layout. "auto" uses a side-by-side split when the
+-- editor is wide enough to give every open panel auto_min_width columns,
+-- otherwise a tabbed float.
+local function resolve_layout()
+  local mode = M.config.layout
+  if mode ~= "auto" then
+    return mode
+  end
+  local n = math.max(1, #ordered_open())
+  return (vim.o.columns >= n * (M.config.auto_min_width or 40)) and "split" or "float"
+end
+
 show_layout = function()
   if #ordered_open() == 0 then
     return close_container()
   end
-  if M.config.layout == "float" then
+  local mode = resolve_layout()
+  -- Switching window model (split <-> float) needs the old container torn down.
+  if mode ~= M.state.effective_layout then
+    close_container()
+    M.state.effective_layout = mode
+  end
+  if mode == "float" then
     ensure_float()
   else
     ensure_split()
@@ -261,7 +282,7 @@ end
 
 -- Cycle the active panel (float mode tab switching)
 function M.cycle(dir)
-  if M.config.layout ~= "float" then
+  if M.state.effective_layout ~= "float" then
     return
   end
   local names = ordered_open()
@@ -698,6 +719,15 @@ function M.setup(opts)
   M.load_todos()
   setup_highlights()
   vim.api.nvim_create_autocmd("ColorScheme", { callback = setup_highlights })
+  -- Re-evaluate the layout when the editor is resized so "auto" can flip
+  -- between side-by-side and tabbed as the window crosses the width threshold.
+  vim.api.nvim_create_autocmd("VimResized", {
+    callback = function()
+      if #ordered_open() > 0 then
+        show_layout()
+      end
+    end,
+  })
 end
 
 return M
