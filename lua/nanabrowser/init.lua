@@ -267,7 +267,8 @@ show_layout = function()
   if #ordered_open() == 0 then
     return close_container()
   end
-  local mode = resolve_layout()
+  -- zoom overrides the resolved layout with a single floating panel.
+  local mode = M.state.zoom and "float" or resolve_layout()
   -- Switching window model (split <-> float) needs the old container torn down.
   if mode ~= M.state.effective_layout then
     close_container()
@@ -281,10 +282,21 @@ show_layout = function()
 end
 
 -- Cycle the active panel (float mode tab switching)
-function M.cycle(dir)
-  if M.state.effective_layout ~= "float" then
-    return
+-- Focus a panel's window (and drop into insert for terminal buffers).
+local function focus_panel(name)
+  local win = M.state.win[name] or M.state.container
+  if win and vim.api.nvim_win_is_valid(win) then
+    vim.api.nvim_set_current_win(win)
+    local b = M.state.buf[name]
+    if b and vim.bo[b].buftype == "terminal" then
+      vim.cmd("startinsert")
+    end
   end
+end
+
+-- Switch panels with <Tab>/<S-Tab>/<Left>/<Right>. In a single-panel float this
+-- swaps which panel is shown; when all panels are visible it just moves focus.
+function M.cycle(dir)
   local names = ordered_open()
   if #names < 2 then
     return
@@ -297,15 +309,21 @@ function M.cycle(dir)
     end
   end
   M.state.active = names[((idx - 1 + dir) % #names) + 1]
-  ensure_float()
-  local win = M.state.container
-  if win and vim.api.nvim_win_is_valid(win) then
-    vim.api.nvim_set_current_win(win)
-    local b = M.state.buf[M.state.active]
-    if b and vim.bo[b].buftype == "terminal" then
-      vim.cmd("startinsert")
-    end
+  if M.state.effective_layout == "float" then
+    ensure_float()
   end
+  focus_panel(M.state.active)
+end
+
+-- Toggle between all panels visible and a single floating panel (focus one).
+-- <Tab>/<Left>/<Right> then switch which panel is focused.
+function M.toggle_zoom()
+  if #ordered_open() == 0 then
+    M.open_panels()
+  end
+  M.state.zoom = not M.state.zoom
+  show_layout()
+  focus_panel(M.state.active)
 end
 
 -- ── Keymaps ─────────────────────────────────────────────────────────────────
@@ -319,6 +337,15 @@ panel_keymaps = function(buf, name)
   end, o)
   vim.keymap.set("n", "<S-Tab>", function()
     M.cycle(-1)
+  end, o)
+  vim.keymap.set("n", "<Right>", function()
+    M.cycle(1)
+  end, o)
+  vim.keymap.set("n", "<Left>", function()
+    M.cycle(-1)
+  end, o)
+  vim.keymap.set("n", "<leader>z", function()
+    M.toggle_zoom()
   end, o)
 end
 
