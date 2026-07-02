@@ -1,5 +1,5 @@
 ## UPDATES!!
-I've tried to update this a bit, if you use it with a different config other than Nananvim and it doesn't work, let me know what's going on and I will resolve the issue as fast as I can. 
+I've tried to update this a bit, if you use it with a different config other than Nananvim and it doesn't work, let me know what's going on and I will resolve the issue as fast as I can. I may break this up to three separate plugins that work together as a panel.. I'm not sure yet.. If anyone uses this, let me know your thoughts. Otherwise, I'll just send it. 
 
 # nanabrowser.nvim
 
