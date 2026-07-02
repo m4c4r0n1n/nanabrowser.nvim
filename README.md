@@ -7,14 +7,8 @@ I've tried to update this a bit, if you use it with a different config other tha
 
 Browser │ Terminal │ TODO - All visible at once!
 
-```
-┌────────────────────────────────────────────────────┐
-│              Main Editor Area                      │
-├──────────────┬──────────────┬──────────────────────┤
-│   Browser    │   Terminal   │       TODO           │
-│   (w3m)      │   (shell)    │   (task list)        │
-└──────────────┴──────────────┴──────────────────────┘
-```
+<img width="1718" height="1400" alt="image" src="https://github.com/user-attachments/assets/4a58d05b-9f2a-4452-9057-99055eb3fc5a" />
+
 
 ## Features
 
