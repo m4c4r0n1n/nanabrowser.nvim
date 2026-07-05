@@ -116,7 +116,7 @@ Every action is also a plain user command, so it scripts and `<Tab>`-completes:
 
 The workspace is not limited to the three built-ins. Register your own panel and
 it joins the auto/split/float layouts, zoom cycling, and `:NanaPanel` completion
-automatically — no core edits:
+automatically:
 
 ```lua
 local nana = require("nanabrowser")
@@ -153,14 +153,6 @@ require("nanabrowser").setup({
 ## Dependencies
 
 - **w3m**: `sudo pacman -S w3m`
-
-## Why This Design?
-
-- **All visible** - No switching, see everything at once
-- **Organized** - Each feature in its own contained box
-- **Efficient** - One command opens/closes all
-- **Clean** - Boxed layout, professional look
-- **Practical** - Like having 3 mini apps at the bottom
 
 ## License
 
