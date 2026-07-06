@@ -9,6 +9,12 @@ Browser │ Terminal │ TODO - All visible at once!
 
 <img width="1718" height="1400" alt="image" src="https://github.com/user-attachments/assets/4a58d05b-9f2a-4452-9057-99055eb3fc5a" />
 
+and why not, a picture of it "working"
+
+
+<img width="1706" height="1384" alt="image" src="https://github.com/user-attachments/assets/ea286d6b-ef4d-4b0a-9670-8a3c56f7713b" />
+
+
 
 ## Features
 
