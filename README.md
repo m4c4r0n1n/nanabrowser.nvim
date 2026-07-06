@@ -14,7 +14,7 @@ and why not, a picture of it "working"
 
 <img width="1706" height="1384" alt="image" src="https://github.com/user-attachments/assets/ea286d6b-ef4d-4b0a-9670-8a3c56f7713b" />
 
-
+It's pretty easy to use. Any suggestions, let me know. 
 
 ## Features
 
