@@ -118,7 +118,7 @@ Every action is also a plain user command, so it scripts and `<Tab>`-completes:
 | `:NanaTerminal` / `:NanaTerminalToggle` | Open / toggle the terminal panel |
 | `:NanaTodos` / `:NanaTodosToggle` | Open / toggle the TODO panel |
 
-## Extending — custom panels
+## Extending custom panels
 
 The workspace is not limited to the three built-ins. Register your own panel and
 it joins the auto/split/float layouts, zoom cycling, and `:NanaPanel` completion
