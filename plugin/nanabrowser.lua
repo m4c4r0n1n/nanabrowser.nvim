@@ -29,6 +29,16 @@ end, {
   desc = "Open URL under cursor",
 })
 
+vim.api.nvim_create_user_command("NanaExternal", function(opts)
+  require("nanabrowser").open_external(opts.args)
+end, {
+  nargs = "?",
+  complete = function(arglead)
+    return require("nanabrowser").complete_url(arglead)
+  end,
+  desc = "Open a URL in your real browser",
+})
+
 -- TODO Commands
 vim.api.nvim_create_user_command("NanaTodos", function()
   require("nanabrowser").open_todos()
