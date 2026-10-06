@@ -51,7 +51,7 @@ Run `:checkhealth nanabrowser` to see what it found.
   opts = {}, -- see Configuration
   keys = {
     { "<leader>p", function() require("nanabrowser").toggle_panels() end, desc = "Toggle panels" },
-    { "<leader>pz", function() require("nanabrowser").toggle_zoom() end, desc = "Zoom panel (focus one / show all)" },
+    { "<leader>z", function() require("nanabrowser").toggle_zoom() end, desc = "Zoom panel (focus one / show all)" },
     { "<leader>wb", function() require("nanabrowser").open_browser_prompt() end, desc = "Browse URL (in-editor)" },
     { "<leader>wo", function() require("nanabrowser").open_external_prompt() end, desc = "Open URL (external)" },
     { "gx", function() require("nanabrowser").open_external_cursor() end, desc = "Open URL in browser", mode = { "n", "v" } },
@@ -68,7 +68,7 @@ Run `:checkhealth nanabrowser` to see what it found.
 | Key | Does |
 | --- | --- |
 | `<leader>p` | Show / hide all panels |
-| `<leader>pz` | Zoom one panel, or show all again |
+| `<leader>z` | Zoom one panel, or show all again |
 | `<leader>wb` | Browse a URL in the browser panel |
 | `<leader>wo` | Open a URL in your external browser |
 | `gx` | Open the URL under the cursor (or the selection) externally |
