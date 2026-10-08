@@ -1,67 +1,52 @@
-## UPDATES!!
-I've tried to update this a bit, if you use it with a different config other than Nananvim and it doesn't work, let me know what's going on and I will resolve the issue as fast as I can. I may break this up to three separate plugins that work together as a panel.. I'm not sure yet.. If anyone uses this, let me know your thoughts. Otherwise, I'll just send it. 
-
-Latest:
-- Panels take their colors from your theme now (blackout mode too)
-- `<leader>p` hides the panels and keeps your shell and page running
-- Zoom moved to `<leader>z`, the same key inside and outside the panels
-- `:checkhealth nanabrowser` tells you which browser it found and what is missing
-- `:NanaExternal [url]` opens a URL in your real browser
-- No more error on the first save of the TODO list on a fresh install
+<div align="center">
 
 # nanabrowser.nvim
 
-<a href="https://ko-fi.com/koifist"><img alt="Ko-fi" src="https://img.shields.io/badge/Ko--fi-support-eb6f92?logo=kofi&logoColor=e0def4&style=for-the-badge&labelColor=232136" /></a>
-
 **Browser │ Terminal │ TODO panels for Neovim.** One key opens all three.
 
-<img width="1718" height="1400" alt="image" src="https://github.com/user-attachments/assets/4a58d05b-9f2a-4452-9057-99055eb3fc5a" />
+<a href="https://github.com/neovim/neovim/releases"><img alt="Neovim 0.11+" src="https://img.shields.io/badge/Neovim-0.11%2B-c4a7e7?logo=neovim&logoColor=e0def4&style=for-the-badge&labelColor=232136" /></a>
+<a href="https://github.com/m4c4r0n1n/nanabrowser.nvim/commits/main"><img alt="Last commit" src="https://img.shields.io/github/last-commit/m4c4r0n1n/nanabrowser.nvim?logo=git&logoColor=e0def4&color=f6c177&style=for-the-badge&labelColor=232136" /></a>
+<a href="https://github.com/m4c4r0n1n/nanabrowser.nvim/commits/main"><img alt="Maintained: yes" src="https://img.shields.io/badge/Maintained%3F-yes-9ccfd8?style=for-the-badge&labelColor=232136" /></a>
+<a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/m4c4r0n1n/nanabrowser.nvim?color=ea9a97&style=for-the-badge&labelColor=232136" /></a>
+<a href="https://ko-fi.com/koifist"><img alt="Ko-fi" src="https://img.shields.io/badge/Ko--fi-support-eb6f92?logo=kofi&logoColor=e0def4&style=for-the-badge&labelColor=232136" /></a>
 
-and why not, a picture of it "working"
+</div>
 
+<img width="1718" height="1400" alt="nanabrowser panels" src="https://github.com/user-attachments/assets/4a58d05b-9f2a-4452-9057-99055eb3fc5a" />
 
-<img width="1706" height="1384" alt="image" src="https://github.com/user-attachments/assets/ea286d6b-ef4d-4b0a-9670-8a3c56f7713b" />
+<img width="1706" height="1384" alt="nanabrowser in use" src="https://github.com/user-attachments/assets/ea286d6b-ef4d-4b0a-9670-8a3c56f7713b" />
 
-It's pretty easy to use. Any suggestions, let me know. 
-
-Built for [nananvim](https://github.com/m4c4r0n1n/nananvim), works in any config.
+Built for [nananvim](https://github.com/m4c4r0n1n/nananvim). Works in any config.
 
 ## Features
 
 - 🌐 **Browser**: w3m, lynx or elinks in a panel. `gx` sends a URL to your real browser.
 - 💻 **Terminal**: a shell in a panel.
 - ✅ **TODO**: a small task list, saved between sessions.
-- 📐 **Adaptive layout**: side by side at the bottom on a wide screen, a tabbed float on a narrow one.
-- 💤 **Hide, not kill**: `<leader>p` hides the panels. Your shell and your page are still there when you come back.
-- 🎨 **Uses your theme**: panel colors come from your colorscheme, blackout mode included.
+- 📐 **Adaptive layout**: side by side on a wide screen, a tabbed float on a narrow one.
+- 💤 **Hide, not kill**: `<leader>p` hides the panels. Your shell and page keep running.
+- 🎨 **Uses your theme**: colors come from your colorscheme, blackout mode included.
 - 🧩 **Custom panels**: add your own with `register_panel()`.
 
 ## Requirements
 
 - Neovim 0.11+
-- A text browser (optional). Without one, URLs open in your external browser.
-
-| System | Install |
-| --- | --- |
-| Arch | `sudo pacman -S w3m` |
-| Debian / Ubuntu | `sudo apt install w3m` |
-| Fedora | `sudo dnf install w3m` |
-| macOS | `brew install w3m` |
+- A text browser (optional): install `w3m` with your package manager. Without one, URLs open in your external browser.
 
 Run `:checkhealth nanabrowser` to see what it found.
 
 ## Installation
 
-[lazy.nvim](https://github.com/folke/lazy.nvim). This is the same spec nananvim ships in `lua/plugins/nanabrowser.lua`:
+[lazy.nvim](https://github.com/folke/lazy.nvim), the same spec nananvim uses:
 
 ```lua
 {
   "m4c4r0n1n/nanabrowser.nvim",
   lazy = false,
-  opts = {}, -- see Configuration
+  opts = {},
   keys = {
     { "<leader>p", function() require("nanabrowser").toggle_panels() end, desc = "Toggle panels" },
-    { "<leader>z", function() require("nanabrowser").toggle_zoom() end, desc = "Zoom panel (focus one / show all)" },
+    { "<leader>z", function() require("nanabrowser").toggle_zoom() end, desc = "Zoom panel" },
     { "<leader>wb", function() require("nanabrowser").open_browser_prompt() end, desc = "Browse URL (in-editor)" },
     { "<leader>wo", function() require("nanabrowser").open_external_prompt() end, desc = "Open URL (external)" },
     { "gx", function() require("nanabrowser").open_external_cursor() end, desc = "Open URL in browser", mode = { "n", "v" } },
@@ -73,92 +58,55 @@ Run `:checkhealth nanabrowser` to see what it found.
 
 ## Keys
 
-**Global** (from the spec above)
-
 | Key | Does |
 | --- | --- |
-| `<leader>p` | Show / hide all panels |
+| `<Tab>` / `<S-Tab>` | Next / previous panel |
+| `q` | Hide the panel. The program keeps running |
 | `<leader>z` | Zoom one panel, or show all again |
-| `<leader>wb` | Browse a URL in the browser panel |
-| `<leader>wo` | Open a URL in your external browser |
-| `gx` | Open the URL under the cursor (or the selection) externally |
-| `<leader>tt` | Start the shell, or jump back to it |
-| `<leader>td` | Jump to the TODO panel |
+| `<Esc>` | Leave terminal mode |
+| `a` / `x` / `e` / `d` | TODO: add / done / edit / delete |
 
-**Inside any panel** (normal mode)
-
-| Key | Does |
-| --- | --- |
-| `<Tab>` / `<S-Tab>` | Next / previous panel (`<Right>` / `<Left>` work too) |
-| `q` | Hide the panel. The program in it keeps running |
-| `<leader>z` | Zoom |
-| `<Esc>` | Leave terminal mode (browser and shell panels) |
-
-To really end the shell or w3m, quit it inside the panel (`exit`, or `q` in w3m). The panel then goes back to its start screen.
-
-**TODO panel**
-
-| Key | Does |
-| --- | --- |
-| `a` | Add |
-| `x` / `<CR>` | Done / not done |
-| `e` | Edit |
-| `d` | Delete |
+To end the shell or w3m, quit it in the panel (`exit`, or `q` in w3m).
 
 ## Commands
 
-Every action is also a plain user command, so it scripts and `<Tab>`-completes:
-
 | Command | Does |
 | --- | --- |
-| `:NanaPanels` | Toggle the whole panel workspace (same as `<leader>p`) |
-| `:NanaZoom` | Toggle focus-one ↔ show-all zoom |
-| `:NanaPanel {name}` | Open one panel by name (Tab-completes: browser, terminal, todo, …) |
-| `:NanaBrowser [url]` | Open the text browser; `<Tab>` completes recent URLs |
-| `:NanaBrowserPrompt` / `:NanaBrowserCursor` | Prompt for a URL / open the one under the cursor |
+| `:NanaPanels` | Show / hide all panels |
+| `:NanaZoom` | Zoom one panel, or show all |
+| `:NanaPanel {name}` | Open one panel |
+| `:NanaBrowser [url]` | Open the text browser |
+| `:NanaBrowserPrompt` / `:NanaBrowserCursor` | Ask for a URL / use the one under the cursor |
 | `:NanaExternal [url]` | Open a URL in your real browser |
-| `:NanaTerminal` / `:NanaTerminalToggle` | Open / toggle the terminal panel |
-| `:NanaTodos` / `:NanaTodosToggle` | Open / toggle the TODO panel |
+| `:NanaTerminal` / `:NanaTerminalToggle` | Open / toggle the terminal |
+| `:NanaTodos` / `:NanaTodosToggle` | Open / toggle the TODO list |
 
-URLs can skip the `https://`. Local paths (`./index.html`, `~/docs/a.html`) open as files, and `localhost:3000` opens over http.
+URLs can skip `https://`. Local paths open as files and `localhost:3000` opens over http.
 
 ## Configuration
 
-Defaults. Pass only what you want to change:
+Defaults. Set only what you want to change:
 
 ```lua
 require("nanabrowser").setup({
-  text_browser = nil,        -- nil = auto (w3m > lynx > elinks); or force one, args allowed: "w3m -no-mouse"
-  external_browser = nil,    -- nil = auto ($BROWSER > system opener > brave/chromium/firefox)
-  layout = "auto",           -- "auto" (side-by-side if wide enough, else tabbed) | "float" | "split"
-  auto_min_width = 40,       -- min columns per panel before "auto" drops to a float
-  reader_mode = false,       -- true = static -dump render (great for docs)
-  float = { width = 0.85, height = 0.85, border = "rounded", hints = true }, -- hints = keys on the border
-  split = { position = "botright", size = 0.35 }, -- size = fraction of screen height
+  text_browser = nil,     -- nil = w3m > lynx > elinks, or "w3m -no-mouse"
+  external_browser = nil, -- nil = $BROWSER > system opener > brave/chromium/firefox
+  layout = "auto",        -- "auto" | "float" | "split"
+  auto_min_width = 40,    -- columns per panel before "auto" uses a float
+  reader_mode = false,    -- true = static page dump
+  float = { width = 0.85, height = 0.85, border = "rounded", hints = true },
+  split = { position = "botright", size = 0.35 },
   default_panels = { "browser", "terminal", "todo" },
   home = "https://duckduckgo.com/html",
-  highlights = nil,          -- nil = use your colorscheme; see Theming
+  highlights = nil,       -- nil = colors from your colorscheme
 })
 ```
 
-The system opener is `open` on macOS, `xdg-open` on Linux and `wslview` on WSL.
-
 ## Theming
 
-The panels take their colors from your colorscheme, so `:colorscheme`, theme-switcher previews and blackout mode just carry over. Each group links to a standard one:
+The groups link to standard ones, so theme changes carry over: `NanaPanelNormal` (NormalFloat), `NanaPanelBorder` (FloatBorder), `NanaPanelTitle` (FloatTitle), `NanaPanelNC`, `NanaPanelTab`, `NanaPanelKey`, `NanaPanelHint` and `NanaTodoDone`.
 
-| Group | Links to | Used for |
-| --- | --- | --- |
-| `NanaPanelNormal` | `NormalFloat` | Panel background |
-| `NanaPanelNC` | `NanaPanelNormal` | Unfocused split panel |
-| `NanaPanelBorder` | `FloatBorder` | Float border |
-| `NanaPanelTitle` | `FloatTitle` | Active tab, focused panel title |
-| `NanaPanelTab` | `NanaPanelBorder` | Other tabs and titles |
-| `NanaPanelKey` | `Special` | Keys on the start screens |
-| `NanaPanelHint` | `Comment` | Key hints |
-| `NanaTodoDone` | `Comment` | Finished TODOs |
-
-Change one in a `ColorScheme` autocmd so it survives theme changes:
+Change one in a `ColorScheme` autocmd:
 
 ```lua
 vim.api.nvim_create_autocmd("ColorScheme", {
@@ -168,29 +116,24 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 })
 ```
 
-Want the old fixed colors back? `highlights = { border = "#89b4fa", bg = "#1e1e2e", bg_nc = "#181825" }`.
+For fixed colors: `highlights = { border = "#89b4fa", bg = "#1e1e2e", bg_nc = "#181825" }`.
 
 ## Custom panels
-
-The workspace is not limited to the three built-ins. Register your own panel and
-it joins the auto/split/float layouts, zoom cycling, and `:NanaPanel` completion
-automatically:
 
 ```lua
 local nana = require("nanabrowser")
 
 nana.register_panel("notes", {
   title = "🗒 Notes",
-  render = function(buf, name)
-    vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "scratch notes…" })
+  render = function(buf)
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "scratch notes" })
   end,
 })
 
--- open it on demand …
 vim.keymap.set("n", "<leader>pn", function() nana.open_panel("notes") end)
--- … or add it to the default workspace:
-nana.setup({ default_panels = { "browser", "terminal", "todo", "notes" } })
 ```
+
+Add `"notes"` to `default_panels` to open it with the others.
 
 ## License
 
