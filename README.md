@@ -11,6 +11,8 @@ Latest:
 
 # nanabrowser.nvim
 
+<a href="https://ko-fi.com/koifist"><img alt="Ko-fi" src="https://img.shields.io/badge/Ko--fi-support-eb6f92?logo=kofi&logoColor=e0def4&style=for-the-badge&labelColor=232136" /></a>
+
 **Browser │ Terminal │ TODO panels for Neovim.** One key opens all three.
 
 <img width="1718" height="1400" alt="image" src="https://github.com/user-attachments/assets/4a58d05b-9f2a-4452-9057-99055eb3fc5a" />
